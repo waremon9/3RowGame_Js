@@ -1,7 +1,9 @@
 //Variables
-var gridHeight = 15;
-var gridWidth = 15;
-var cellSize = 40;
+var gridHeight = 74;
+var gridWidth = 140;
+var cellSize = 10;
+var nbColor = 3;
+var gameSpeed = 5;
 
 //cells content
 var EMPTY = 0;
@@ -22,14 +24,14 @@ var LIGHT_GREY = "rgba(200, 200, 200, 0.3)";
 
 //game state
 var GameState = [];
-var line=[];
+var col=[];
 for(let i = 0; i<gridWidth; i++){
-    line = [];
+    col = [];
     for(let j = 0; j<gridHeight;j++){
-        let rnd = Math.floor(Math.random() * (5) + 1)
-        line.push(rnd);
+        let rnd = Math.floor(Math.random() * (nbColor) + 1)
+        col.push(rnd);
     }
-    GameState.push(line);
+    GameState.push(col);
 }
 var toDelete = [];
 
@@ -83,6 +85,7 @@ function drawBoard(){
                     ctx.fillStyle = VIOLET;
                     break;
                 default:
+                    console.log(x+","+y);
                     console.log("ERROR in drawBoard()")
                     break;
             }
@@ -106,15 +109,15 @@ function drawBoard(){
 
 document.addEventListener('keydown', function(event) {
     if(event.keyCode == 32) {
-        checkAllGrid();
+        boucle();
     }
 })
 
 
 function checkAllGrid(){
     let count = 0;
-    for(let y = 0; y<gridWidth; y++){
-        for(let x = 0; x<gridHeight; x++){
+    for(let x = 0; x<gridWidth; x++){
+        for(let y = 0; y<gridHeight; y++){
             count = check3row(x,y,0);
             if(count>=2) for(let i = 0; i<=count; i++) toDelete.push([x+i,y]);
             count = check3col(x,y,0);
@@ -139,10 +142,54 @@ function check3col(x, y, count){
 }
 
 function deleteFromGrid(){
-    toDelete.forEach(e => {
-        console.log("delete");
-        GameState[e[0]][e[1]] = EMPTY;
-    });
-    toDelete = [];
+    if(toDelete.length != 0){
+        toDelete.forEach(e => {
+            GameState[e[0]][e[1]] = EMPTY;
+        });
+        toDelete = [];
+        setTimeout(boucle, gameSpeed*1.5);
+    }
     drawBoard();
+}
+
+
+function fillTopRow(){
+    for(let i = 0; i<gridWidth;i++){
+        if(GameState[i][0] == EMPTY) GameState[i][0] = Math.floor(Math.random() * (nbColor) + 1);
+    }
+}
+
+
+function gravity(){
+    GameState.forEach(col => {
+        for(let i = gridHeight-1; i>0; i--){
+            if(col[i] == EMPTY){
+                col[i] = col[i-1];
+                col[i-1] = EMPTY;
+            }
+        }
+    });
+}
+
+function boucle(){
+    if(!checkGridFull()){
+        gravity();
+        fillTopRow();
+        drawBoard();
+        setTimeout(boucle, gameSpeed);
+    }else{
+        setTimeout(checkAllGrid, gameSpeed*2);
+    }
+}
+
+function checkGridFull(){
+    let res = true;
+    GameState.forEach(col => {
+        col.forEach(cell => {
+            if(cell == EMPTY){
+                res = false;
+            }
+        })
+    });
+    return res;
 }
