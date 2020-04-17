@@ -1,9 +1,9 @@
 //Variables
-var gridHeight = 74;
-var gridWidth = 140;
-var cellSize = 10;
-var nbColor = 3;
-var gameSpeed = 5;
+var gridHeight = 15;
+var gridWidth = 15;
+var cellSize = 40;
+var nbColor = 5;
+var gameSpeed = 60;
 
 //cells content
 var EMPTY = 0;
@@ -20,6 +20,7 @@ var YELLOW = "#FFFF00";
 var RED = "#FF0000";
 var VIOLET = "#7F00FF";
 var BLACK = "#000000";
+var ORANGE = "#FFA500";
 var LIGHT_GREY = "rgba(200, 200, 200, 0.3)";
 
 //game state
@@ -34,10 +35,25 @@ for(let i = 0; i<gridWidth; i++){
     GameState.push(col);
 }
 var toDelete = [];
+var SelectedCell = null;
 
 // wait for window to load
 window.onload = function(){
     createCanvas();
+}
+
+document.addEventListener('keydown', function(event) {
+    if(event.keyCode == 32) {
+        boucle();
+    }
+})
+
+function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
 }
 
 function createCanvas(){
@@ -46,6 +62,19 @@ function createCanvas(){
     let can =  "<canvas id='myCanvas' width='"+ width
         + "' height='"+ height +"'></canvas>";
     document.getElementById("game").innerHTML = can;
+
+    document.getElementById("myCanvas").addEventListener('click', function(event){
+        let pos = getMousePos(document.getElementById("myCanvas"), event);
+        selectCell(pos);
+    })
+
+    drawBoard();
+}
+
+function selectCell(pos){
+    let X = Math.floor(pos.x/cellSize);
+    let Y = Math.floor(pos.y/cellSize);
+    SelectedCell = [X,Y];
     drawBoard();
 }
 
@@ -96,6 +125,7 @@ function drawBoard(){
     //draw the grid
     ctx.beginPath();
     ctx.strokeStyle = BLACK;
+    ctx.lineWidth = 1;
     for(let x = 0; x<gridWidth+1; x++){
       ctx.moveTo(cellSize*x,0);
       ctx.lineTo(cellSize*x,canHeight);
@@ -105,14 +135,21 @@ function drawBoard(){
       ctx.lineTo(canWidth,cellSize*y);
     }
     ctx.stroke();
-}
 
-document.addEventListener('keydown', function(event) {
-    if(event.keyCode == 32) {
-        boucle();
+    //show selected cell
+    if(SelectedCell != null){
+        ctx.beginPath();
+        ctx.strokeStyle = ORANGE;
+        ctx.lineWidth = 4;
+        ctx.moveTo(SelectedCell[0]*cellSize, SelectedCell[1]*cellSize);
+        ctx.lineTo((SelectedCell[0]+1)*cellSize, SelectedCell[1]*cellSize);
+        ctx.lineTo((SelectedCell[0]+1)*cellSize, (SelectedCell[1]+1)*cellSize);
+        ctx.lineTo(SelectedCell[0]*cellSize, (SelectedCell[1]+1)*cellSize);
+        ctx.lineTo(SelectedCell[0]*cellSize, SelectedCell[1]*cellSize);
+        ctx.stroke();
     }
-})
 
+}
 
 function checkAllGrid(){
     let count = 0;
