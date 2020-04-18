@@ -11,17 +11,35 @@ var DOT_BLUE = 1;
 var DOT_GREEN = 2;
 var DOT_YELLOW = 3;
 var DOT_RED = 4;
-var DOT_VIOLET = 5;
+var DOT_PURPLE = 5;
+var DOT_CYAN = 6;
+var DOT_PINK = 7;
 
-//color
+//color (some unused with the image coming)
 var BLUE = "#0000FF";
 var GREEN = "#00FF00";
 var YELLOW = "#FFFF00";
 var RED = "#FF0000";
-var VIOLET = "#7F00FF";
+var PURPLE = "#7F00FF";
 var BLACK = "#000000";
 var ORANGE = "#FFA500";
 var LIGHT_GREY = "rgba(200, 200, 200, 0.3)";
+
+//images
+var img_Blue = new Image();
+img_Blue.src = "Image/BluePuyo.png";
+var img_Green = new Image();
+img_Green.src = "Image/GreenPuyo.png";
+var img_Red = new Image();
+img_Red.src = "Image/RedPuyo.png";
+var img_Yellow = new Image();
+img_Yellow.src = "Image/YellowPuyo.png";
+var img_Purple = new Image();
+img_Purple.src = "Image/PurplePuyo.png";
+var img_Cyan = new Image();
+img_Cyan.src = "Image/CyanPuyo.png";
+var img_Pink = new Image();
+img_Pink.src = "Image/PinkPuyo.png";
 
 //game state
 var GameState = [];
@@ -74,8 +92,15 @@ function createCanvas(){
 function selectCell(pos){
     let X = Math.floor(pos.x/cellSize);
     let Y = Math.floor(pos.y/cellSize);
-    SelectedCell = [X,Y];
+    if(SelectedCell == null) SelectedCell = [X,Y];
+    else {
+        let tmp = GameState[X][Y];
+        GameState[X][Y] = GameState[SelectedCell[0]][SelectedCell[1]];
+        GameState[SelectedCell[0]][SelectedCell[1]] = tmp;
+        SelectedCell = null;
+    }
     drawBoard();
+    setTimeout(boucle, gameSpeed*2);
 }
 
 function drawBoard(){
@@ -94,31 +119,39 @@ function drawBoard(){
     //coloring cells acording to what they contain
     for(let x = 0; x<gridWidth; x++){
         for(let y = 0; y<gridHeight; y++){
+            ctx.fillStyle = LIGHT_GREY;
+            ctx.fillRect(x*cellSize, y*cellSize, cellSize, cellSize);
             switch(GameState[x][y]){
                 case EMPTY:
-                    ctx.fillStyle = LIGHT_GREY;
+                    //do nothing
                     break;
                 case DOT_BLUE:
-                    ctx.fillStyle = BLUE;
+                    ctx.drawImage(img_Blue, x*cellSize, y*cellSize, cellSize, cellSize);
                     break;
                 case DOT_GREEN:
-                    ctx.fillStyle = GREEN;
+                    ctx.drawImage(img_Green, x*cellSize, y*cellSize, cellSize, cellSize);
                     break;
                 case DOT_YELLOW:
-                    ctx.fillStyle = YELLOW;
+                    ctx.drawImage(img_Yellow, x*cellSize, y*cellSize, cellSize, cellSize);
                     break;
                 case DOT_RED:
-                    ctx.fillStyle = RED;
+                    ctx.drawImage(img_Red, x*cellSize, y*cellSize, cellSize, cellSize);
                     break;
-                case DOT_VIOLET:
-                    ctx.fillStyle = VIOLET;
+                case DOT_PURPLE:
+                    ctx.drawImage(img_Purple, x*cellSize, y*cellSize, cellSize, cellSize);
+                    break;
+                case DOT_CYAN:
+                    ctx.drawImage(img_Cyan, x*cellSize, y*cellSize, cellSize, cellSize);
+                    break;
+                case DOT_PINK:
+                    ctx.drawImage(img_Pink, x*cellSize, y*cellSize, cellSize, cellSize);
                     break;
                 default:
                     console.log(x+","+y);
                     console.log("ERROR in drawBoard()")
                     break;
             }
-            ctx.fillRect(x*cellSize, y*cellSize, cellSize, cellSize);
+            
         }
     }
 
@@ -150,6 +183,8 @@ function drawBoard(){
     }
 
 }
+
+
 
 function checkAllGrid(){
     let count = 0;
